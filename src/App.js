@@ -4,7 +4,7 @@ import { getSvgPathFromStroke } from "./utils";
 import "./styles.css";
 
 const options = {
-  size: 32,
+  size: 8,
   thinning: 0.5,
   smoothing: 0.5,
   streamline: 0.5,
@@ -15,35 +15,46 @@ const options = {
     cap: true
   },
   end: {
-    taper: 100,
+    taper: 0,
     easing: (t) => t,
     cap: true
   }
 };
 
 export default function Example() {
-  const [points, setPoints] = React.useState([]);
+  const [strokes, setStrokes] = React.useState([]);
+  const [currentPoints, setCurrentPoints] = React.useState([]);
 
   function handlePointerDown(e) {
     e.target.setPointerCapture(e.pointerId);
-    setPoints([[e.pageX, e.pageY, e.pressure]]);
+    setCurrentPoints([[e.pageX, e.pageY, e.pressure]]);
   }
 
   function handlePointerMove(e) {
     if (e.buttons !== 1) return;
-    setPoints([...points, [e.pageX, e.pageY, e.pressure]]);
+    setCurrentPoints([...currentPoints, [e.pageX, e.pageY, e.pressure]]);
   }
 
-  const stroke = getStroke(points, options);
-  const pathData = getSvgPathFromStroke(stroke);
+  function handlePointerUp(e) {
+    setStrokes([...strokes, currentPoints]);
+    setCurrentPoints([]);
+  }
 
   return (
     <svg
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
       style={{ touchAction: "none" }}
     >
-      {points && <path d={pathData} />}
+      {strokes.map((strokePoints) => {
+        const stroke = getStroke(strokePoints, options);
+        const pathData = getSvgPathFromStroke(stroke);
+        return <path d={pathData} />;
+      })}
+      {currentPoints.length > 0 && (
+        <path d={getSvgPathFromStroke(getStroke(currentPoints, options))} />
+      )}
     </svg>
   );
 }
