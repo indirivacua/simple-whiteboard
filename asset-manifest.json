@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/simple-whiteboard/static/css/main.6e937052.css",
+    "main.js": "/simple-whiteboard/static/js/main.f27e9f01.js",
+    "static/js/787.c0aee0eb.chunk.js": "/simple-whiteboard/static/js/787.c0aee0eb.chunk.js",
+    "index.html": "/simple-whiteboard/index.html",
+    "main.6e937052.css.map": "/simple-whiteboard/static/css/main.6e937052.css.map",
+    "main.f27e9f01.js.map": "/simple-whiteboard/static/js/main.f27e9f01.js.map",
+    "787.c0aee0eb.chunk.js.map": "/simple-whiteboard/static/js/787.c0aee0eb.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6e937052.css",
+    "static/js/main.f27e9f01.js"
+  ]
+}
