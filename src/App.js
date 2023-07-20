@@ -30,6 +30,7 @@ export default function Example() {
   function handlePointerDown(e) {
     e.target.setPointerCapture(e.pointerId);
     if (mode === "drawing") {
+      setSelectedStrokeIndex(null);
       setCurrentPoints([[e.pageX, e.pageY, e.pressure]]);
     } else if (mode === "selecting") {
       const clickedX = e.pageX;
@@ -94,6 +95,11 @@ export default function Example() {
       >
         {mode === "drawing" ? "Cambiar a seleccionar" : "Cambiar a dibujar"}
       </button>
+      {mode === 'selecting' && (
+        <p style={{ position: 'absolute', zIndex: '2', left: '10px', bottom: '50px' }}>
+          Usa <kbd>Del</kbd> para borrar
+        </p>
+      )}
       <svg
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -107,7 +113,7 @@ export default function Example() {
             <path
               d={pathData}
               style={{
-                stroke: i === selectedStrokeIndex ? "red" : "black"
+                stroke: i === selectedStrokeIndex && mode == "selecting" ? "red" : "black"
               }}
             />
           );
