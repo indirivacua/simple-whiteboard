@@ -26,11 +26,16 @@ export default function Example() {
   const [currentPoints, setCurrentPoints] = React.useState([]);
   const [mode, setMode] = React.useState("drawing");
   const [selectedStrokeIndex, setSelectedStrokeIndex] = React.useState(null);
+  const [panPosition, setPanPosition] = React.useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = React.useState(false);
 
   function handlePointerDown(e) {
     e.target.setPointerCapture(e.pointerId);
-    if (mode === "drawing") {
-      setCurrentPoints([[e.pageX, e.pageY, e.pressure]]);
+    if (e.button === 1) {
+      setIsPanning(true);
+    } else if (mode === "drawing") {
+      setCurrentPoints([[e.pageX - panPosition.x, e.pageY - panPosition.y, e.pressure]]);
+      setSelectedStrokeIndex(null);
     } else if (mode === "selecting") {
       const clickedX = e.pageX;
       const clickedY = e.pageY;
@@ -39,7 +44,7 @@ export default function Example() {
       strokes.forEach((strokePoints, strokeIndex) => {
         strokePoints.forEach(([x, y]) => {
           const distance = Math.sqrt(
-            Math.pow(clickedX - x, 2) + Math.pow(clickedY - y, 2)
+            Math.pow(clickedX - x - panPosition.x, 2) + Math.pow(clickedY - y - panPosition.y, 2)
           );
           if (distance < closestDistance) {
             closestDistance = distance;
@@ -52,12 +57,20 @@ export default function Example() {
   }
 
   function handlePointerMove(e) {
+    if (isPanning) {
+      setPanPosition((prevPanPosition) => ({
+        x: prevPanPosition.x + e.movementX,
+        y: prevPanPosition.y + e.movementY
+      }));
+    }
     if (e.buttons !== 1 || mode !== "drawing") return;
-    setCurrentPoints([...currentPoints, [e.pageX, e.pageY, e.pressure]]);
+    setCurrentPoints([...currentPoints, [e.pageX - panPosition.x, e.pageY - panPosition.y, e.pressure]]);
   }
 
   function handlePointerUp(e) {
-    if (mode === "drawing") {
+    if (isPanning) {
+      setIsPanning(false);
+    } else if (mode === "drawing") {
       setStrokes([...strokes, currentPoints]);
       setCurrentPoints([]);
     }
@@ -109,6 +122,7 @@ export default function Example() {
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         style={{ touchAction: "none" }}
+        viewBox={`${-panPosition.x} ${-panPosition.y} ${window.innerWidth} ${window.innerHeight}`}
       >
         {strokes.map((strokePoints, i) => {
           const stroke = getStroke(strokePoints, options);
@@ -117,7 +131,7 @@ export default function Example() {
             <path
               d={pathData}
               style={{
-                stroke: i === selectedStrokeIndex && mode === "selecting" ? "red" : "black"
+                stroke: i === selectedStrokeIndex ? "red" : "black"
               }}
             />
           );
