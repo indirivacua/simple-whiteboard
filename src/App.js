@@ -30,7 +30,6 @@ export default function Example() {
   function handlePointerDown(e) {
     e.target.setPointerCapture(e.pointerId);
     if (mode === "drawing") {
-      setSelectedStrokeIndex(null);
       setCurrentPoints([[e.pageX, e.pageY, e.pressure]]);
     } else if (mode === "selecting") {
       const clickedX = e.pageX;
@@ -65,7 +64,7 @@ export default function Example() {
   }
 
   function handleKeyDown(e) {
-    if (e.key === "Delete" && selectedStrokeIndex !== null) {
+    if (e.key === "Delete" && selectedStrokeIndex !== null && mode === "selecting") {
       setStrokes(strokes.filter((_, i) => i !== selectedStrokeIndex));
       setSelectedStrokeIndex(null);
     }
@@ -79,7 +78,12 @@ export default function Example() {
   return (
     <>
       <button
-        onClick={() => setMode(mode === "drawing" ? "selecting" : "drawing")}
+        onClick={() => {
+          setMode(mode === "drawing" ? "selecting" : "drawing");
+          if (mode === "selecting") {
+            setSelectedStrokeIndex(null);
+          }
+        }}
         style={{
           position: "absolute",
           zIndex: "2",
@@ -113,7 +117,7 @@ export default function Example() {
             <path
               d={pathData}
               style={{
-                stroke: i === selectedStrokeIndex && mode == "selecting" ? "red" : "black"
+                stroke: i === selectedStrokeIndex && mode === "selecting" ? "red" : "black"
               }}
             />
           );
